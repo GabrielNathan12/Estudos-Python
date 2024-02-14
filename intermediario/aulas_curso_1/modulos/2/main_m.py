@@ -1,0 +1,1 @@
+print('Esete módulo se chama', __name__)
