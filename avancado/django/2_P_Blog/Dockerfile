@@ -1,10 +1,8 @@
 # Use uma imagem base do Linux
-FROM python:3.12.2-alpine3.18
+FROM python:3.10.13-alpine3.19
 
 LABEL maintainer="gabrielnathanmiw@gmail.com"
 
-# Essa variável de ambiente é usada para controlar se o Python deve 
-# gravar arquivos de bytecode (.pyc) no disco. 1 = Não, 0 = Sim
 ENV PYTHONDONTWRITEBYTECODE 1
 
 # Define que a saída do Python será exibida imediatamente no console ou em 
@@ -31,14 +29,14 @@ EXPOSE 8000
 RUN python -m venv /venv && \
   /venv/bin/pip install --upgrade pip && \
   /venv/bin/pip install -r /app/requirements.txt && \
-  adduser --disabled-password --no-create-home duser && \
+  adduser --disabled-password --no-create-home gabri && \
   mkdir -p /data/web/static && \
   mkdir -p /data/web/media && \
-  chown -R duser:duser /venv && \
-  chown -R duser:duser /data/web/static && \
-  chown -R duser:duser /data/web/media && \
-  chmod -R 755 /data/web/static && \
-  chmod -R 755 /data/web/media && \
+  chown -R gabri:gabri /venv && \
+  chown -R gabri:gabri /data/web/static && \
+  chown -R gabri:gabri /data/web/media && \
+  chmod -R 777 /data/web/static && \
+  chmod -R 777 /data/web/media && \
   chmod -R +x /scripts
 
 # Adiciona a pasta scripts e venv/bin 
@@ -46,7 +44,7 @@ RUN python -m venv /venv && \
 ENV PATH="/scripts:/venv/bin:$PATH"
 
 # Muda o usuário para duser
-USER duser
+# USER duser
 
 # Executa o arquivo scripts/commands.sh
 CMD ["commands.sh"]
