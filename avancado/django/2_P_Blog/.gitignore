@@ -1,0 +1,5 @@
+venv
+static
+media
+__pycache__
+project/local_settings.py
