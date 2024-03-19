@@ -1,5 +1,5 @@
 # Use uma imagem base do Linux
-FROM python:3.12.2-alpine3.18
+FROM python:3.10.13-slim-bookworm
 
 LABEL maintainer="gabrielnathanmiw@gmail.com"
 
@@ -12,41 +12,22 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Em resumo, você verá os outputs do Python em tempo real.
 ENV PYTHONUNBUFFERED 1
 
-# Copia a pasta "djangoapp" e "scripts" para dentro do container.
-COPY app /app
-COPY scripts /scripts
+# Atualizar o sistema e instalar dependências
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc \
+    gettext \
+    postgresql-client
 
-# Entra na pasta djangoapp no container
+# Criar e definir o diretório de trabalho
 WORKDIR /app
 
-# A porta 8000 estará disponível para conexões externas ao container
-# É a porta que vamos usar para o Django.
-EXPOSE 8000
+# Copiar e instalar requisitos
+COPY app/requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
 
-# RUN executa comandos em um shell dentro do container para construir a imagem. 
-# O resultado da execução do comando é armazenado no sistema de arquivos da 
-# imagem como uma nova camada.
-# Agrupar os comandos em um único RUN pode reduzir a quantidade de camadas da 
-# imagem e torná-la mais eficiente.
-RUN python -m venv /venv && \
-  /venv/bin/pip install --upgrade pip && \
-  /venv/bin/pip install -r /app/requirements.txt && \
-  adduser --disabled-password --no-create-home duser && \
-  mkdir -p /data/web/static && \
-  mkdir -p /data/web/media && \
-  chown -R duser:duser /venv && \
-  chown -R duser:duser /data/web/static && \
-  chown -R duser:duser /data/web/media && \
-  chmod -R 755 /data/web/static && \
-  chmod -R 755 /data/web/media && \
-  chmod -R +x /scripts
+# Copiar o código do aplicativo para o contêiner
+COPY . /app/
 
-# Adiciona a pasta scripts e venv/bin 
-# no $PATH do container.
-ENV PATH="/scripts:/venv/bin:$PATH"
-
-# Muda o usuário para duser
-USER duser
-
-# Executa o arquivo scripts/commands.sh
-CMD ["commands.sh"]
+# Executar comando padrão
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
