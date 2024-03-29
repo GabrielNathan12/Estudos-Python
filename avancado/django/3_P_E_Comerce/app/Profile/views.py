@@ -1,4 +1,3 @@
-from typing import Any
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
@@ -14,7 +13,7 @@ from . import forms
 class BasePerfil(View):
     template_name = 'Profile/_create.html'
 
-    def setup(self, *args: Any, **kwargs: Any) -> None:
+    def setup(self, *args, **kwargs) -> None:
         super().setup(*args, **kwargs)
         self.car = copy.deepcopy(self.request.session.get('car',{}))
         self.profile = None
@@ -23,22 +22,22 @@ class BasePerfil(View):
             self.profile = models.Profile.objects.filter(user=self.request.user).first()
 
             self.context = {
-                'userForm': forms.UserForm(
+                'userform': forms.UserForm(
                     data=self.request.POST or None,
                     user=self.request.user,
                     instance=self.request.user),
-                'profileForm': forms.ProfileForm(
+                'profileform': forms.ProfileForm(
                     data=self.request.POST or None, 
                     instance=self.profile
                 )
             }
         else:
             self.context = {
-                'userForm': forms.UserForm(data=self.request.POST or None),
-                'profileForm': forms.ProfileForm(data=self.request.POST or None)
+                'userform': forms.UserForm(data=self.request.POST or None),
+                'profileform': forms.ProfileForm(data=self.request.POST or None)
             }
-        self.userForm = self.context['userForm']
-        self.profileForm = self.context['profileForm']
+        self.userForm = self.context['userform']
+        self.profileForm = self.context['profileform']
 
         if self.request.user.is_authenticated:
             self.template_name = 'Profile/_update.html'
@@ -51,7 +50,8 @@ class Create(BasePerfil):
     def post(self, *args, **kwargs):
         if not self.userForm.is_valid() or not self.profileForm.is_valid():
             messages.error(self.request, 'Existem erros no formulário de cadastro')
-
+            return self.rederizar
+        
         username = self.userForm.cleaned_data.get('username')
         password = self.userForm.cleaned_data.get('password')
         email = self.userForm.cleaned_data.get('email')
@@ -102,7 +102,6 @@ class Create(BasePerfil):
             messages.success(self.request, 'Login realizado com Sucesso')
 
             return redirect('Product:car')
-        return self.rederizar
     
 class Update(View):
     def get(self, *args, **kwargs):
@@ -137,3 +136,8 @@ class Logout(View):
         self.request.session.save()
 
         return redirect('Product:list')
+    
+
+
+
+

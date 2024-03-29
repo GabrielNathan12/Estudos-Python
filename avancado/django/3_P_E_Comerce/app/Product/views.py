@@ -1,11 +1,11 @@
-from typing import Any
-from django.db.models.query import QuerySet
-from django.shortcuts import render, reverse, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.views import View
-from . import models
-from django.db.models import Q
+from django.http import HttpResponse
 from django.contrib import messages
+from django.db.models import Q
+from . import models
 from Profile.models import Profile
 
 class ListProduct(ListView):
@@ -37,18 +37,20 @@ class DetailProduct(DetailView):
     template_name = 'Product/_details.html'
     context_object_name = 'Product'
     slug_url_kwarg = 'slug'
-    
+
+
 class AddToCar(View):
     def get(self, *args, **kwargs):
+        
         http_referer = self.request.META.get('HTTP_REFERER', reverse('Product:list'))
-
         variation_id = self.request.GET.get('vid')
-
+        
         if not variation_id:
             messages.error(self.request, 'Produto não existe')
             return redirect(http_referer)
         
         variation = get_object_or_404(models.Variation, id=variation_id)
+       
         variation_stock = variation.stock
         product = variation.product
 
@@ -57,29 +59,21 @@ class AddToCar(View):
         variation_name = variation.name or ''
         price_unt = variation.price
         price_unt_promo = variation.price_promotion
-        amount = 1
         slug = product.slug
-        image = product.image
-
-        if image:
-            image = image.name
-        else:
-            image = ''
+        image = product.image.name if product.image else ''
 
         if variation.stock < 1:
             messages.error(self.request, 'Estoque insuficiente')
             return redirect(http_referer)
         
-        if not self.request.session.get('car'):
+        if 'car' not in self.request.session:
             self.request.session['car'] = {}
             self.request.session.save()
 
         car = self.request.session['car']
 
         if variation_id in car:
-            amount_car = car[variation_id]['amount']
-            amount_car += 1
-
+            amount_car = car[variation_id]['amount'] + 1
             if variation_stock < amount_car:
                 messages.warning(self.request,f'Estoque insuficiente para {amount_car}x no '
                     f'produto "{product_name}". Adicionamos {variation_stock}x '
@@ -88,13 +82,13 @@ class AddToCar(View):
 
             car[variation_id]['amount'] = amount_car
             car[variation_id]['price_amount'] = price_unt * amount_car
-            car[variation_id]['price_mount_promo'] = price_unt_promo * amount_car
+            car[variation_id]['price_amount_promo'] = price_unt_promo * amount_car
 
         else:
             car[variation_id] = {
                 'product_id': product_id,
                 'product_name': product_name,
-                'variation_name' : variation_name,
+                'variation_name': variation_name,
                 'variation_id': variation_id,
                 'price_unt': price_unt,
                 'price_unt_promo': price_unt_promo,
@@ -102,11 +96,13 @@ class AddToCar(View):
                 'price_amount_promo': price_unt_promo,
                 'amount': 1,
                 'slug': slug,
-                'image':image
+                'image': image
             }
+
         self.request.session.save()
+
         messages.success(self.request, f'Produto {product_name} {variation_name} adicionado ao seu '
-            f'carrinho {car[variation_id]["quantidade"]}x.')
+            f'carrinho {car[variation_id]["amount"]}x.')
         
         return redirect(http_referer)
 
@@ -139,7 +135,7 @@ class Car(View):
         context = {
             'car': self.request.session.get('car', {})
         }
-        return render(self.request, 'Product/car.html', context)
+        return render(self.request, 'Product/_car.html', context)
     
     
 class ResumeToShoop(View):
@@ -163,3 +159,8 @@ class ResumeToShoop(View):
         }
 
         return render(self.request, 'Product/_resumeshoop.html', context)
+    
+
+
+
+

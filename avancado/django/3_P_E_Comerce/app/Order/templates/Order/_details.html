@@ -1,1 +1,11 @@
-<h1>Hello</h1>
+{% extends 'base.html %}
+
+{% block title%} {{ order }} {% endblock %}
+
+{% load static %}
+
+{% block content %}
+
+    {% include 'partials/_order.html' %}
+
+{% endblock %}

@@ -9,7 +9,7 @@ from utils import utils
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description_short = models.TextField(max_length=255)
-    description_long = models.TimeField()
+    description_long = models.TextField()
     image = models.ImageField(upload_to='product_images/%Y/%m/', blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
     price_marketing = models.FloatField(verbose_name='Price')
@@ -19,10 +19,11 @@ class Product(models.Model):
 
     def get_price_formact(self):
         return utils.formact_price(self.price_marketing)
-    
+    get_price_formact.short_description = 'Preço'
+
     def get_price_formact_promo(self):
-        return utils.formact_price(self.price_marketing_promotional)
-    
+        return utils.formact_price(self.price_marketing_promotion)
+    get_price_formact_promo.short_description = 'Preço promo'
 
     @staticmethod
     def resize_image(img, new_width):
