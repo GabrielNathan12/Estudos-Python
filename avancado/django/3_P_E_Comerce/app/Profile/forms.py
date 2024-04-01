@@ -25,7 +25,7 @@ class UserForm(forms.ModelForm):
         cleaned = self.cleaned_data
         validation_error_msgs = {}
 
-        user_data = cleaned.get('userName')
+        user_data = cleaned.get('username')
         email_data = cleaned.get('email')
         password_data = cleaned.get('password')
         password2_data = cleaned.get('password2')
@@ -66,7 +66,7 @@ class UserForm(forms.ModelForm):
             if not password_data:
                 validation_error_msgs['password'] = error_msg_required_field
             
-            if password2_data != password2_data:
+            if password2_data != password_data:
                 validation_error_msgs['password'] = error_msg_password_match
                 validation_error_msgs['password2'] = error_msg_password_match
 
@@ -75,6 +75,4 @@ class UserForm(forms.ModelForm):
 
         
         if validation_error_msgs:
-            raise(forms.ValidationError(validation_error_msgs)
-                  
-                  )
+            raise(forms.ValidationError(validation_error_msgs))

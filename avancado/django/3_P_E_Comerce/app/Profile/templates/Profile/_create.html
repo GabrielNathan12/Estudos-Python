@@ -43,8 +43,8 @@
 
         <form method="POST" action="">
             {% csrf_token %}
-            {{ userform }}
-            {{ perfilform }}
+            {{ userform | crispy }}
+            {{ profileform | crispy }}
 
             <div class="row">
                 <div class="col">

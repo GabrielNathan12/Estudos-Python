@@ -1,7 +1,7 @@
 from typing import Any
 from django.http import HttpRequest
 from django.http.response import HttpResponse as HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,reverse
 from django.views import View
 from django.views.generic import ListView, DetailView
 from .models import Order, ItemOrder
@@ -43,23 +43,22 @@ class SaveOrder(View):
             return redirect('Product:list')
         
         car = self.request.session.get('car')
-        print(car)
         car_variation_ids = [v for v in car]
-        bd_variation = list(Variation.objects.select_related('Product').filter(id__in=car_variation_ids))
-
+        bd_variation = list(Variation.objects.select_related('product').filter(id__in=car_variation_ids))
+        
         for variation in bd_variation:
             vid = str(variation.id)
             stock = variation.stock
             qtd_car = car[vid]['amount']            
-            price_unt = car[vid]['price']
-            price_unt_promo = car[vid]['price_promotional']
-    
+            price_unt = car[vid]['price_unt']
+            price_unt_promo = car[vid]['price_unt_promo']
+            
             error_msg_stock = ''
 
             if stock < qtd_car:
                 car[vid]['amount'] = stock
-                car[vid]['price'] = stock * price_unt
-                car[vid]['price_promotional'] = stock * price_unt_promo
+                car[vid]['price_amount'] = stock * price_unt
+                car[vid]['price_amount_promo'] = stock * price_unt_promo
 
                 error_msg_stock = 'Estoque insuficiente para alguns '\
                     'produtos do seu carrinho. '\
@@ -77,17 +76,16 @@ class SaveOrder(View):
 
         order = Order(user=self.request.user, total=total_car, qtd_total = qtd_total_car, status='C')
         order.save()
-
         ItemOrder.objects.bulk_create(
             [
-                Order(
+                ItemOrder(
                     order=order,
                     product=v['product_name'],
                     product_id=v['product_id'],
                     variation=v['variation_name'],
                     variation_id=v['variation_id'],
-                    price=v['rederizar'],
-                    price_promo=v['price_promotional'],
+                    price=v['price_amount'],
+                    price_promotional=v['price_amount_promo'],
                     amount=v['amount'],
                     image=v['image'],
                 ) for v in car.values()
@@ -96,7 +94,7 @@ class SaveOrder(View):
 
         del self.request.session['car']
 
-        return redirect('Order:pay', kwargs={'pk':order.pk})
+        return redirect(reverse('Order:pay', kwargs={'pk':order.pk}))
 
 class Detail(DispatchLoginRequiredMixin,DetailView):
     model = Order

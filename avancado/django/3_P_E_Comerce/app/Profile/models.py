@@ -72,7 +72,7 @@ class Profile(models.Model):
             if not validate_cpf(self.cpf):
                 error_messages['cpf'] = 'CPF inválido'
 
-            if re.search(r'[0-9]', self.cep) or len(self.cep) < 8:
+            if re.search(r'[^0-9]', self.cep) or len(self.cep) < 7:
                 error_messages['cep'] = 'CEP inválido'
 
         if error_messages:

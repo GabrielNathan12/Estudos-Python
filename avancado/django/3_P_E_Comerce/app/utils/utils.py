@@ -9,9 +9,9 @@ def cart_total_qtd(car):
 def cart_totals(car):
     return sum(
         [
-            item.get('promotional_quantitative_price')
-            if item.get('promotional_quantitative_price')
-            else item.get('quantitative_price')
+            item.get('price')
+            if item.get('price_promotional')
+            else item.get('amount')
             for item
             in car.values()
         ]

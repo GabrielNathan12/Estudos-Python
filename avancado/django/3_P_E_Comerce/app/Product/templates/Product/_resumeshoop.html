@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load _filters %}
+{% load _filter %}
 
 {% block title %}Resumo da compra | {% endblock %}
 
@@ -32,22 +32,22 @@
         <p>Caso precise editar, <a href="{% url 'Profile:create' %}">clique aqui</a></p>
         <dl class="row">
             <dt class="col-lg-2">Endereço:</dt>
-            <dd class="col-lg-4">{{ user.Profile.address }}</dd>
+            <dd class="col-lg-4">{{ user.profile.address }}</dd>
             <dt class="col-lg-2">Número:</dt>
-            <dd class="col-lg-4">{{ user.Profile.number }}</dd>
+            <dd class="col-lg-4">{{ user.profile.number }}</dd>
 
             <dt class="col-lg-2">Complemento:</dt>
-            <dd class="col-lg-4">{{ user.Profile.complement }}</dd>
+            <dd class="col-lg-4">{{ user.profile.complement }}</dd>
             <dt class="col-lg-2">Nascimento:</dt>
-            <dd class="col-lg-4">{{ user.Profile.neighborhood }}</dd>
+            <dd class="col-lg-4">{{ user.profile.neighborhood }}</dd>
 
             <dt class="col-lg-2">Cidade:</dt>
-            <dd class="col-lg-4">{{ user.Profile.city }}</dd>
+            <dd class="col-lg-4">{{ user.profile.city }}</dd>
             <dt class="col-lg-2">Estado:</dt>
-            <dd class="col-lg-4">{{ user.Profile.state }}</dd>
+            <dd class="col-lg-4">{{ user.profile.state }}</dd>
 
             <dt class="col-lg-2">CEP:</dt>
-            <dd class="col-lg-4">{{ user.Profile.cep }}</dd>
+            <dd class="col-lg-4">{{ user.profile.cep }}</dd>
         </dl>
     </div>
 </div>

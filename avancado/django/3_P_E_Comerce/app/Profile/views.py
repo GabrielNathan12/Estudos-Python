@@ -13,7 +13,7 @@ from . import forms
 class BasePerfil(View):
     template_name = 'Profile/_create.html'
 
-    def setup(self, *args, **kwargs) -> None:
+    def setup(self, *args, **kwargs):
         super().setup(*args, **kwargs)
         self.car = copy.deepcopy(self.request.session.get('car',{}))
         self.profile = None
@@ -41,19 +41,20 @@ class BasePerfil(View):
 
         if self.request.user.is_authenticated:
             self.template_name = 'Profile/_update.html'
-        self.rederizar = render(self.request, self.template_name, self.context)
+        
+        self.renderizar = render(self.request, self.template_name, self.context)
 
     def get(self, *args, **kwargs):
-        return self.rederizar
+        return self.renderizar
     
 class Create(BasePerfil):
     def post(self, *args, **kwargs):
         if not self.userForm.is_valid() or not self.profileForm.is_valid():
             messages.error(self.request, 'Existem erros no formulário de cadastro')
-            return self.rederizar
+            return self.renderizar
         
         username = self.userForm.cleaned_data.get('username')
-        password = self.userForm.cleaned_data.get('password')
+        password = self.userForm.cleaned_data.get('password') or ''
         email = self.userForm.cleaned_data.get('email')
         first_name = self.userForm.cleaned_data.get('first_name')
         last_name = self.userForm.cleaned_data.get('last_name')
@@ -92,7 +93,7 @@ class Create(BasePerfil):
         if password:
             authentic = authenticate(self.request, username=user, password=password)
             if authentic:
-                login(self.request, user=user)
+                login(self.request, user)
 
             self.request.session['car'] = self.car
             self.request.session.save()
@@ -122,7 +123,7 @@ class Login(View):
             messages.error(self.request, 'Usuário ou senha inválidos')
             return redirect('Profile:create')
 
-        login(self.request, user=username)
+        login(self.request, user=user)
 
         messages.success(self.request, 'Login feito com sucesso')
         return redirect('Product:car')

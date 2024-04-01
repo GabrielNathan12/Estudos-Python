@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load _filter %}
 
 {% block title %}Pedidos de {{ user }} | {% endblock %}
 
@@ -24,11 +24,11 @@
                 {% for pedido in orders %}
                 <tr>
                     <th scope="row">{{ pedido }}</td>
-                    <td>{{ pedido.total  }}</td>
+                    <td>{{ pedido.total | formact_price  }}</td>
                     <td>{{ pedido.qtd_total }}</td>
                     <td>{{ pedido.get_status_display }}</td>
                     <td>
-                        <a href="{% url 'Order:detail' order.id %}">
+                        <a href="{% url 'Order:detail' pedido.id %}">
                             Ver <i class="fas fa-search-plus ml-2"></i>
                         </a>
                     </td>

@@ -15,7 +15,7 @@ class ListProduct(ListView):
     paginate_by = 10
     ordering = ['-id']
 
-class GetProduct(ListView):
+class GetProduct(ListProduct):
     def get_queryset(self, *args, **kwargs):
         term = self.request.GET.get('termo') or self.request.session['termo']
         qs = super().get_queryset(*args, **kwargs)

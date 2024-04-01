@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load _filter %}
 
 <div class="table-responsive">
     <table class="table">
@@ -36,9 +36,9 @@
             </td>
 
             {% if linha.price_amount_promo %}
-            <td>{{ linha.price_amount_promo }}</td>
+                <td>{{ linha.price_amount_promo | formact_price }}</td>
             {% else %}
-            <td>{{ linha.price_amount }}</td>
+                <td>{{ linha.price_amount | formact_price }}</td>
             {% endif %}
 
         </tr>
